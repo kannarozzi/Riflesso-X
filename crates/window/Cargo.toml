@@ -1,0 +1,14 @@
+[package]
+name = "riflesso-window"
+description = "The mirroring window of Riflesso X: decoded video in a native window"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+riflesso-airplay.workspace = true
+riflesso-video.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+winit = "0.30"
+windows = { version = "0.62", features = ["Win32_Foundation", "Win32_Graphics_Dwm", "Win32_Graphics_Gdi"] }

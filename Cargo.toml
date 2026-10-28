@@ -1,0 +1,24 @@
+[workspace]
+resolver = "3"
+members = ["crates/playfair", "crates/airplay", "crates/audio", "crates/video", "crates/window", "crates/updates", "apps/desktop", "apps/cli", "apps/installer"]
+
+[workspace.package]
+version = "1.0.0"
+edition = "2024"
+license = "GPL-3.0-or-later"
+
+[workspace.dependencies]
+playfair = { path = "crates/playfair" }
+riflesso-airplay = { path = "crates/airplay" }
+riflesso-video = { path = "crates/video" }
+riflesso-audio = { path = "crates/audio" }
+riflesso-window = { path = "crates/window" }
+riflesso-updates = { path = "crates/updates" }
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tokio = { version = "1", features = ["full"] }
+
+[profile.release]
+lto = "thin"
+strip = true

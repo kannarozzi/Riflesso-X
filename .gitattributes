@@ -1,0 +1,7 @@
+* text=auto eol=lf
+*.png binary
+*.ico binary
+*.icns binary
+
+# playfair's C code is vendored: keep it out of GitHub's language statistics.
+crates/playfair/csrc/** linguist-vendored

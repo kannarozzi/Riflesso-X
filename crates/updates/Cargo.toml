@@ -1,0 +1,14 @@
+[package]
+name = "riflesso-updates"
+description = "Finds out whether a newer Riflesso X release is on GitHub, and downloads its installer"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+hex = "0.4"
+windows = { version = "0.62", features = ["Win32_System_Com", "Win32_System_Com_Urlmon"] }

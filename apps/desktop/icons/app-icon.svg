@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- "X riflessa": an ink V above the horizon and its iridescent reflection
+       below it form the X of the name. Drawn on a 64-unit grid, scaled ×15. -->
+  <defs>
+    <linearGradient id="plate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1c2430"/>
+      <stop offset="1" stop-color="#07090c"/>
+    </linearGradient>
+    <linearGradient id="iris" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5ad1e6"/>
+      <stop offset="0.4" stop-color="#8b7cf6"/>
+      <stop offset="0.7" stop-color="#f08bb8"/>
+      <stop offset="1" stop-color="#f3c76a"/>
+    </linearGradient>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <mask id="reflection" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+      <rect x="0" y="557" width="1024" height="330" fill="url(#fade)"/>
+    </mask>
+  </defs>
+  <rect x="32" y="32" width="960" height="960" rx="210" fill="url(#plate)"/>
+  <polygon points="219.5,197 369.5,197 512,350 654.5,197 804.5,197 512,512" fill="#f4f6f8"/>
+  <rect x="182" y="527" width="660" height="27" fill="url(#iris)"/>
+  <polygon points="219.5,884 369.5,884 512,731 654.5,884 804.5,884 512,569" fill="url(#iris)" mask="url(#reflection)"/>
+</svg>

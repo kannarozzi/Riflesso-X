@@ -1,0 +1,42 @@
+[package]
+name = "riflesso-x"
+description = "Riflesso X: AirPlay screen-mirroring receiver for Windows"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+riflesso-airplay.workspace = true
+riflesso-video.workspace = true
+riflesso-audio.workspace = true
+riflesso-window.workspace = true
+riflesso-updates.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-single-instance = "2"
+tauri-plugin-opener = "2"
+tauri-plugin-dialog = "2"
+tokio.workspace = true
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# Setup mode (src/setup): registry, shortcuts, closing a running copy.
+winreg = "0.56"
+windows = { version = "0.62", features = [
+    "Win32_Foundation",
+    "Win32_System_Com",
+    "Win32_System_Diagnostics_ToolHelp",
+    "Win32_System_Threading",
+    "Win32_UI_Shell",
+    "Win32_UI_WindowsAndMessaging",
+] }
+
+[features]
+# Production builds embed the web UI; `npm run tauri dev` disables this to
+# load it from the Vite dev server instead.
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]

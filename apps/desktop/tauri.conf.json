@@ -1,0 +1,60 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Riflesso X",
+  "version": "1.0.0",
+  "identifier": "io.github.kannarozzi.riflessox",
+  "build": {
+    "devUrl": "http://localhost:5173",
+    "frontendDist": "../../dist",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Riflesso X",
+        "width": 440,
+        "height": 700,
+        "minWidth": 380,
+        "minHeight": 560,
+        "center": true,
+        "backgroundColor": "#eef0f3",
+        "decorations": false,
+        "create": false
+      },
+      {
+        "label": "setup",
+        "url": "setup.html",
+        "title": "Riflesso X Setup",
+        "width": 600,
+        "height": 470,
+        "resizable": false,
+        "maximizable": false,
+        "center": true,
+        "backgroundColor": "#eef0f3",
+        "decorations": false,
+        "create": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self' ipc: http://ipc.localhost; style-src 'self' 'unsafe-inline'; img-src 'self' data:"
+    }
+  },
+  "bundle": {
+    "active": false,
+    "category": "Utility",
+    "shortDescription": "AirPlay screen mirroring receiver for Windows",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ],
+    "longDescription": "Riflesso X shows the screen of an iPhone, iPad or Mac on a Windows PC over AirPlay.",
+    "publisher": "kannarozzi",
+    "copyright": "Copyright © 2026 kannarozzi. Licensed under the GPL-3.0-or-later.",
+    "homepage": "https://github.com/kannarozzi/Riflesso-X",
+    "license": "GPL-3.0-or-later"
+  }
+}

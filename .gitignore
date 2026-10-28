@@ -1,0 +1,13 @@
+/target
+/node_modules
+/dist
+# Reference checkout of UxPlay (protocol reference, not built)
+/third_party/
+*.h264
+*.h265
+
+# Internal notes (kept local, not published)
+/HANDOFF.md
+/CLAUDE.md
+# Release files built by `npm run release`
+/release/

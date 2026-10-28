@@ -1,0 +1,25 @@
+[package]
+name = "riflesso-cli"
+description = "Riflesso X from the command line: the AirPlay receiver without the interface"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "riflesso"
+path = "src/main.rs"
+
+[dependencies]
+riflesso-airplay.workspace = true
+riflesso-video.workspace = true
+riflesso-audio.workspace = true
+riflesso-window.workspace = true
+riflesso-updates.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+tokio.workspace = true
+clap = { version = "4", features = ["derive"] }
+
+[build-dependencies]
+embed-resource = "3"

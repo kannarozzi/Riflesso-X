@@ -1,0 +1,149 @@
+@import "tailwindcss";
+@import "@fontsource-variable/instrument-sans/wght.css";
+@import "@fontsource/michroma/latin-400.css";
+@import "@fontsource/jetbrains-mono/latin-400.css";
+
+/* "Specchio" identity: brushed silver surfaces, ink text, and an iridescent
+   sheen that appears only when a screen is being mirrored. Light values here,
+   dark values below (they follow the Windows theme). */
+@theme {
+  --font-sans: "Instrument Sans Variable", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Michroma", "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+
+  --color-mist: #f8f9fb;
+  --color-steel: #dde1e7;
+  --color-ink: #0e1218;
+  --color-ink-soft: #2e3640;
+  --color-dim: #5b6573;
+  --color-faint: #7a8390;
+  --color-glass: #ffffffb8;
+  --color-edge: #0e12181a;
+  --color-on-ink: #ffffff;
+  --color-ready: #1fa36b;
+  --color-warn: #c2850c;
+  --color-danger: #d4334a;
+  /* Opaque surface for menus floating over the content. */
+  --color-popover: #fbfcfd;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-mist: #1a1e25;
+    --color-steel: #0b0d11;
+    --color-ink: #eef1f5;
+    --color-ink-soft: #c9d0d9;
+    --color-dim: #98a2b0;
+    --color-faint: #6b7482;
+    --color-glass: #ffffff0f;
+    --color-edge: #ffffff1a;
+    --color-on-ink: #0e1218;
+    --color-ready: #3ccf8e;
+    --color-warn: #f0b43c;
+    --color-danger: #ff6b7d;
+    --color-popover: #20252d;
+  }
+}
+
+:root {
+  color-scheme: light dark;
+  --iris: linear-gradient(90deg, #5ad1e6, #8b7cf6 40%, #f08bb8 70%, #f3c76a);
+  --iris-screen: linear-gradient(150deg, #7fd8e8, #9a8cf3 40%, #f29ac0 70%, #f6d27e);
+}
+
+/* Iridescent fill, used sparingly: the active tab and a mirrored screen. */
+@utility bg-iris {
+  background-image: var(--iris);
+}
+
+@utility bg-iris-screen {
+  background-image: var(--iris-screen);
+}
+
+/* The app's content column: the width of the default window, centred when
+   the window is maximised so lines and tiles don't stretch. */
+@utility column {
+  width: 100%;
+  max-width: 30rem;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+/* Upside-down copy that fades out, as on a polished surface. */
+@utility reflection {
+  transform: scaleY(-1);
+  mask-image: linear-gradient(to top, #000, transparent);
+}
+
+@keyframes sheen {
+  from {
+    translate: -100% 0;
+  }
+  to {
+    translate: 350% 0;
+  }
+}
+
+@keyframes power-on {
+  from {
+    opacity: 0;
+    filter: brightness(1.6);
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    scale: 0.97;
+  }
+}
+
+/* Thin scrollbars that float over the silver surfaces. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+  background-color: color-mix(in srgb, var(--color-ink) 18%, transparent);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--color-ink) 32%, transparent);
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply text-ink antialiased select-none;
+  background: linear-gradient(180deg, var(--color-mist) 0%, var(--color-steel) 100%);
+}
+
+input {
+  @apply select-text;
+}

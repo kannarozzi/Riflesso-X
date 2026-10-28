@@ -1,0 +1,10 @@
+[package]
+name = "playfair"
+description = "FairPlay SAP handshake and AirPlay key decryption (wraps the playfair C library)"
+version.workspace = true
+edition.workspace = true
+license = "GPL-3.0-only"
+links = "playfair"
+
+[build-dependencies]
+cc = "1"

@@ -1,0 +1,26 @@
+[package]
+name = "riflesso-airplay"
+description = "AirPlay screen-mirroring receiver protocol for Riflesso X"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+playfair.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+tokio.workspace = true
+plist = "1"
+mdns-sd = "0.21"
+ed25519-dalek = { version = "2", features = ["rand_core"] }
+x25519-dalek = "2"
+rand_core = { version = "0.6", features = ["getrandom"] }
+sha2 = "0.10"
+aes = "0.8"
+ctr = "0.9"
+hex = "0.4"
+mac_address = "1"
+rusty_aac = "1.1"
+# Access control: HTTP Digest (password, on-screen code).
+md-5 = "0.10"
+subtle = "2"
