@@ -42,7 +42,7 @@
   your sound card wants.
 - **Yours to control.** Let anyone on your network connect, or ask for a password or
   a code shown on the PC.
-- **Light.** A 3.5 MB installer. Closing the window frees the interface completely
+- **Light.** A 4.5 MB installer. Closing the window frees the interface completely
   and only the receiver stays, in the notification area, if you want it to.
 - **Tidy.** Everything lives in one folder: settings, logs, even the web view's
   files. Uninstalling or deleting the folder leaves nothing behind.
@@ -56,9 +56,9 @@
 
 | | |
 |---|---|
-| **Installer** · `Riflesso-X_1.0.0_x64-setup.exe` | Installs for your user only, in a single folder you can choose, no administrator rights needed. |
-| **Portable** · `Riflesso-X_1.0.0_x64-portable.zip` | Unzip anywhere and run `Riflesso X.exe`. To remove it, delete the folder. |
-| **Command line** · `Riflesso-X_1.0.0_x64-cli.zip` | Just the `riflesso` command, without the app. Easiest installed with one line: see [Command line](#command-line). |
+| **Installer** · `Riflesso-X_1.0.1_x64-setup.exe` | Installs for your user only, in a single folder you can choose, no administrator rights needed. |
+| **Portable** · `Riflesso-X_1.0.1_x64-portable.zip` | Unzip anywhere and run `Riflesso X.exe`. To remove it, delete the folder. |
+| **Command line** · `Riflesso-X_1.0.1_x64-cli.zip` | Just the `riflesso` command, without the app. Easiest installed with one line: see [Command line](#command-line). |
 
 They are on the [releases page](https://github.com/kannarozzi/Riflesso-X/releases/latest),
 with a `SHA256SUMS.txt` to check the downloads.

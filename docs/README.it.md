@@ -42,7 +42,7 @@
   scheda audio.
 - **Decidi tu chi entra.** Chiunque sulla tua rete, oppure con una password o un
   codice mostrato sul PC.
-- **Leggero.** Un installer da 3,5 MB. Chiudendo la finestra l'interfaccia viene
+- **Leggero.** Un installer da 4,5 MB. Chiudendo la finestra l'interfaccia viene
   liberata del tutto, e se vuoi resta solo il ricevitore nell'area di notifica.
 - **Ordinato.** Tutto sta in un'unica cartella: impostazioni, log e persino i file
   della web view. Disinstallando, o cancellando la cartella, non resta nulla.
@@ -56,9 +56,9 @@
 
 | | |
 |---|---|
-| **Installer** · `Riflesso-X_1.0.0_x64-setup.exe` | Si installa solo per il tuo utente, in un'unica cartella a tua scelta, senza diritti di amministratore. |
-| **Portable** · `Riflesso-X_1.0.0_x64-portable.zip` | Estrai dove vuoi e avvia `Riflesso X.exe`. Per toglierlo, cancella la cartella. |
-| **Riga di comando** · `Riflesso-X_1.0.0_x64-cli.zip` | Solo il comando `riflesso`, senza l'app. Si installa con una riga: vedi [Riga di comando](#riga-di-comando). |
+| **Installer** · `Riflesso-X_1.0.1_x64-setup.exe` | Si installa solo per il tuo utente, in un'unica cartella a tua scelta, senza diritti di amministratore. |
+| **Portable** · `Riflesso-X_1.0.1_x64-portable.zip` | Estrai dove vuoi e avvia `Riflesso X.exe`. Per toglierlo, cancella la cartella. |
+| **Riga di comando** · `Riflesso-X_1.0.1_x64-cli.zip` | Solo il comando `riflesso`, senza l'app. Si installa con una riga: vedi [Riga di comando](#riga-di-comando). |
 
 Sono nella [pagina delle release](https://github.com/kannarozzi/Riflesso-X/releases/latest),
 con un file `SHA256SUMS.txt` per verificare i download.

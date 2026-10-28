@@ -106,7 +106,7 @@ fn get_snapshot(state: State<'_, Arc<AppState>>) -> Snapshot {
 }
 
 /// Saves the settings. The receiver restarts only when what senders see
-/// changed (name, resolution, codec).
+/// changed (name, resolution, codec, security).
 #[tauri::command]
 async fn save_settings(
     mut settings: Settings,

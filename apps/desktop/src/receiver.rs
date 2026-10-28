@@ -8,13 +8,15 @@ use std::sync::{Arc, Mutex};
 use riflesso_airplay::{Event, ReceiverConfig};
 use riflesso_audio::Player;
 use tauri::async_runtime::JoinHandle;
-use tokio::sync::Notify;
+use tokio::sync::{Mutex as AsyncMutex, Notify};
 
 use crate::settings::Settings;
 use crate::state::{AppState, Requested, Status};
 
 pub struct Receiver {
     task: Mutex<Option<JoinHandle<()>>>,
+    /// Held while restarting: two overlapping restarts would both start a receiver.
+    restarting: AsyncMutex<()>,
     events: mpsc::Sender<Event>,
     /// The receiving end, until [`take_events`](Self::take_events) is called.
     receiver_events: Mutex<Option<mpsc::Receiver<Event>>>,
@@ -30,6 +32,7 @@ impl Receiver {
         let (events, receiver_events) = mpsc::channel();
         Self {
             task: Mutex::new(None),
+            restarting: AsyncMutex::new(()),
             events,
             receiver_events: Mutex::new(Some(receiver_events)),
             audio: Arc::new(Player::new()),
@@ -52,6 +55,7 @@ impl Receiver {
     }
 
     pub async fn restart(&self, settings: &Settings, state: Arc<AppState>) {
+        let _restarting = self.restarting.lock().await;
         self.stop().await;
 
         let (display, hevc) = settings.display(self.hevc_available, self.monitor);

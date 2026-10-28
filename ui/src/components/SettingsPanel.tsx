@@ -1,10 +1,11 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { Check } from "lucide-react";
 import {
   checkForUpdates,
   forgetPairedDevices,
   MIN_PASSWORD_LEN,
   saveSettings,
+  type Device,
   type Resolution,
   type SecurityMode,
   type Settings,
@@ -20,8 +21,32 @@ const resolutions: { id: Resolution; label: string; size: string; height: number
   { id: "2160p", label: "4K", size: "3840×2160", height: 2160 },
 ];
 
-/** What senders see: changing it restarts the receiver, so it waits for "Save". */
-type ReceiverDraft = Pick<Settings, "name" | "resolution" | "hevc" | "security" | "password">;
+/** What senders see: changing it restarts the receiver, so it is applied as
+    soon as it is chosen, after asking if devices would be disconnected. */
+type ReceiverFields = Pick<Settings, "name" | "resolution" | "hevc" | "security" | "password">;
+
+/** Same rule as `Settings::receiver_differs` in settings.rs. */
+function receiverDiffers(a: Settings, b: Settings) {
+  return (
+    a.name.trim() !== b.name.trim() ||
+    a.resolution !== b.resolution ||
+    a.hevc !== b.hevc ||
+    a.security !== b.security ||
+    (b.security === "password" && a.password !== b.password)
+  );
+}
+
+type SectionId = "name" | "quality" | "codec" | "security";
+
+/** Where a change shows its outcome: next to the setting that was touched. */
+function sectionOf(change: Partial<ReceiverFields>): SectionId {
+  if ("name" in change) return "name";
+  if ("resolution" in change) return "quality";
+  if ("hevc" in change) return "codec";
+  return "security";
+}
+
+type ApplyStatus = { section: SectionId } & ({ state: "applying" | "saved" } | { state: "error"; text: string });
 
 export function SettingsPanel({ snapshot }: { snapshot: Snapshot }) {
   return (
@@ -35,53 +60,100 @@ export function SettingsPanel({ snapshot }: { snapshot: Snapshot }) {
 
 function ReceiverSettings({ snapshot }: { snapshot: Snapshot }) {
   const t = useT();
-  const { name, resolution, hevc, security, password } = snapshot.settings;
-  const [draft, setDraft] = useState<ReceiverDraft>({ name, resolution, hevc, security, password });
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const saved = snapshot.settings;
+  // Text fields are applied when left (or on Enter), not at every key.
+  const [name, setName] = useState(saved.name);
+  const [password, setPassword] = useState(saved.password);
+  // "Password" was picked: it is turned on once one long enough is entered.
+  const [choosingPassword, setChoosingPassword] = useState(false);
+  // The change being applied, shown before the backend reports it.
+  const [applying, setApplying] = useState<Partial<ReceiverFields> | null>(null);
+  const [status, setStatus] = useState<ApplyStatus | null>(null);
+  const [confirm, setConfirm] = useState<{ answer: (ok: boolean) => void } | null>(null);
 
-  // Follow changes made elsewhere (e.g. after saving).
-  useEffect(
-    () => setDraft({ name, resolution, hevc, security, password }),
-    [name, resolution, hevc, security, password],
-  );
+  // Changes are applied one at a time, each on top of the previous one.
+  const queue = useRef(Promise.resolve());
+  const current = useRef(saved);
+  const devices = useRef(snapshot.devices);
+  useEffect(() => {
+    current.current = saved;
+    devices.current = snapshot.devices;
+  }, [saved, snapshot.devices]);
 
-  const dirty =
-    draft.name !== name ||
-    draft.resolution !== resolution ||
-    draft.hevc !== hevc ||
-    draft.security !== security ||
-    (draft.security === "password" && draft.password !== password);
-  const valid =
-    draft.name.trim() !== "" && (draft.security !== "password" || draft.password.length >= MIN_PASSWORD_LEN);
-  const hevcOn = draft.hevc && snapshot.hevcAvailable;
-  const update = (change: Partial<ReceiverDraft>) => {
-    setDraft((d) => ({ ...d, ...change }));
-    setMessage(null);
-  };
+  useEffect(() => setName(saved.name), [saved.name]);
+  useEffect(() => setPassword(saved.password), [saved.password]);
+  useEffect(() => setChoosingPassword(false), [saved.security]);
+  useEffect(() => {
+    if (status?.state !== "saved") return;
+    const timer = setTimeout(() => setStatus(null), 3000);
+    return () => clearTimeout(timer);
+  }, [status]);
 
-  async function save() {
-    setSaving(true);
+  const askToRestart = () => new Promise<boolean>((answer) => setConfirm({ answer }));
+
+  async function apply(change: Partial<ReceiverFields>) {
+    const before = current.current;
+    const next = { ...before, ...change };
+    if (!receiverDiffers(before, next)) return;
+    if (devices.current.length > 0 && !(await askToRestart())) {
+      if ("name" in change) setName(before.name);
+      if ("password" in change) {
+        setPassword(before.password);
+        setChoosingPassword(false);
+      }
+      return;
+    }
+    const section = sectionOf(change);
+    setApplying(change);
+    setStatus({ section, state: "applying" });
     try {
-      await saveSettings({ ...snapshot.settings, ...draft });
-      setMessage({ ok: true, text: t("settings.saved") });
+      await saveSettings(next);
+      current.current = next;
+      setStatus({ section, state: "saved" });
     } catch (e) {
-      setMessage({ ok: false, text: String(e) });
+      setStatus({ section, state: "error", text: String(e) });
     } finally {
-      setSaving(false);
+      setApplying(null);
     }
   }
 
+  const commit = (change: Partial<ReceiverFields>) => {
+    queue.current = queue.current.then(() => apply(change));
+  };
+
+  const applyName = () => {
+    if (name.trim() === "") setName(saved.name);
+    else commit({ name: name.trim() });
+  };
+  const applyPassword = () => {
+    // Too short: it stays here, with the hint below, until it is long enough.
+    if (password.length >= MIN_PASSWORD_LEN) commit({ security: "password", password });
+  };
+  const blurOnEnter = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") e.currentTarget.blur();
+  };
+
+  const shown = { ...saved, ...applying };
+  const security = choosingPassword ? "password" : shown.security;
+  const passwordPending = security === "password" && (saved.security !== "password" || password !== saved.password);
+  const hevcOn = shown.hevc && snapshot.hevcAvailable;
+  const statusOf = (section: SectionId) => (status?.section === section ? status : undefined);
+
   return (
     <div className="space-y-6">
-      <GroupTitle>{t("settings.receiver")}</GroupTitle>
+      <div className="space-y-1">
+        <GroupTitle>{t("settings.receiver")}</GroupTitle>
+        <p className="text-xs text-faint">{t("settings.restartNote")}</p>
+      </div>
 
-      <Section title={t("settings.name")} hint={t("settings.nameHint")}>
+      <Section title={t("settings.name")} hint={t("settings.nameHint")} status={statusOf("name")}>
         <input
           id="receiver-name"
-          value={draft.name}
+          value={name}
           maxLength={50}
-          onChange={(e) => update({ name: e.target.value })}
+          onChange={(e) => setName(e.target.value)}
+          onBlur={applyName}
+          onKeyDown={blurOnEnter}
           className="w-full rounded-xl bg-glass px-3 py-2 text-[13px] shadow-[0_0_0_1px_var(--color-edge)] outline-none focus:shadow-[0_0_0_1.5px_var(--color-ink)]"
         />
       </Section>
@@ -89,10 +161,11 @@ function ReceiverSettings({ snapshot }: { snapshot: Snapshot }) {
       <Section
         title={t("settings.quality")}
         hint={t(hevcOn ? "settings.qualityHint" : "settings.qualityLimited")}
+        status={statusOf("quality")}
       >
         <Choices
-          value={draft.resolution}
-          onChange={(resolution) => update({ resolution })}
+          value={shown.resolution}
+          onChange={(resolution) => commit({ resolution })}
           options={[
             { value: "auto" as Resolution, label: t("settings.auto"), detail: t("settings.autoDetail") },
             ...resolutions.map((r) => ({
@@ -105,9 +178,9 @@ function ReceiverSettings({ snapshot }: { snapshot: Snapshot }) {
         />
       </Section>
 
-      <Section title={t("settings.codec")}>
+      <Section title={t("settings.codec")} status={statusOf("codec")}>
         <label className="flex cursor-pointer items-start gap-3">
-          <Toggle checked={hevcOn} disabled={!snapshot.hevcAvailable} onChange={(hevc) => update({ hevc })} />
+          <Toggle checked={hevcOn} disabled={!snapshot.hevcAvailable} onChange={(hevc) => commit({ hevc })} />
           <span className="text-[13px]">
             <span className="block font-medium">{t("settings.hevc")}</span>
             <span className="block text-dim">
@@ -117,43 +190,100 @@ function ReceiverSettings({ snapshot }: { snapshot: Snapshot }) {
         </label>
       </Section>
 
-      <Section title={t("settings.security")}>
+      <Section title={t("settings.security")} status={statusOf("security")}>
         <Choices
-          value={draft.security}
-          onChange={(security) => update({ security })}
+          value={security}
+          onChange={(mode) => {
+            if (mode === "password") {
+              if (saved.security !== "password") setChoosingPassword(true);
+            } else {
+              setChoosingPassword(false);
+              commit({ security: mode });
+            }
+          }}
           options={securityModes.map((mode) => ({ value: mode.id, label: t(mode.label), detail: t(mode.detail) }))}
         />
-        {draft.security === "password" && (
-          <input
-            id="password"
-            type="password"
-            value={draft.password}
-            maxLength={64}
-            placeholder={t("settings.passwordPlaceholder")}
-            onChange={(e) => update({ password: e.target.value })}
-            className="mt-2 w-full rounded-xl bg-glass px-3 py-2 text-[13px] shadow-[0_0_0_1px_var(--color-edge)] outline-none placeholder:text-faint focus:shadow-[0_0_0_1.5px_var(--color-ink)]"
-          />
+        {security === "password" && (
+          <>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              maxLength={64}
+              autoFocus={choosingPassword}
+              placeholder={t("settings.passwordPlaceholder")}
+              onChange={(e) => setPassword(e.target.value)}
+              onBlur={applyPassword}
+              onKeyDown={blurOnEnter}
+              className="mt-2 w-full rounded-xl bg-glass px-3 py-2 text-[13px] shadow-[0_0_0_1px_var(--color-edge)] outline-none placeholder:text-faint focus:shadow-[0_0_0_1.5px_var(--color-ink)]"
+            />
+            {passwordPending && (
+              <p className="mt-2 text-xs text-faint">
+                {t("settings.passwordPending", { min: MIN_PASSWORD_LEN })}
+              </p>
+            )}
+          </>
         )}
-        {security === "code" && draft.security === "code" && <ForgetDevices />}
+        {saved.security === "code" && security === "code" && <ForgetDevices />}
       </Section>
 
-      <div className="space-y-2">
-        <div className="flex items-center gap-3">
+      {confirm && (
+        <ConfirmRestart
+          devices={snapshot.devices}
+          onAnswer={(ok) => {
+            confirm.answer(ok);
+            setConfirm(null);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+/** Asked before a change that would disconnect the devices in use. */
+function ConfirmRestart({ devices, onAnswer }: { devices: Device[]; onAnswer: (ok: boolean) => void }) {
+  const t = useT();
+  return (
+    <div
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="restart-title"
+      aria-describedby="restart-hint"
+      onKeyDown={(e) => e.key === "Escape" && onAnswer(false)}
+      className="fixed inset-0 z-30 grid place-items-center bg-mist/85 p-6 backdrop-blur-md"
+      style={{ animation: "pop-in 160ms ease-out" }}
+    >
+      <div className="flex max-w-72 flex-col items-center text-center">
+        <p id="restart-title" className="text-[15px] font-semibold tracking-tight">
+          {t("settings.confirmTitle")}
+        </p>
+        <p id="restart-hint" className="mt-2 text-[13px] text-ink-soft">
+          {t("settings.confirmHint")}
+        </p>
+        {devices.length > 0 && (
+          <ul className="mt-3 space-y-0.5 text-[13px] font-medium">
+            {devices.map((d) => (
+              <li key={d.id}>{d.name}</li>
+            ))}
+          </ul>
+        )}
+        <div className="mt-6 flex gap-2">
           <button
-            disabled={!dirty || saving || !valid}
-            onClick={save}
-            className="rounded-full bg-ink px-5 py-2 text-[13px] font-semibold text-on-ink transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-30"
+            type="button"
+            onClick={() => onAnswer(false)}
+            className="rounded-full bg-glass px-5 py-2 text-[13px] font-semibold shadow-[0_0_0_1px_var(--color-edge)] transition hover:shadow-[0_0_0_1px_var(--color-dim)]"
           >
-            {t(saving ? "settings.saving" : "settings.save")}
+            {t("settings.confirmCancel")}
           </button>
-          {message && (
-            <span className={`flex items-center gap-1.5 text-[13px] ${message.ok ? "text-ready" : "text-danger"}`}>
-              {message.ok && <Check className="size-4" />}
-              {message.text}
-            </span>
-          )}
+          <button
+            type="button"
+            autoFocus
+            onClick={() => onAnswer(true)}
+            className="rounded-full bg-ink px-5 py-2 text-[13px] font-semibold text-on-ink transition hover:opacity-90"
+          >
+            {t("settings.confirmRestart")}
+          </button>
         </div>
-        <p className="text-xs text-faint">{t("settings.restartNote")}</p>
       </div>
     </div>
   );
@@ -285,11 +415,33 @@ function GroupTitle({ children }: { children: ReactNode }) {
   return <h2 className="text-[15px] font-semibold tracking-tight">{children}</h2>;
 }
 
-function Section({ title, hint, children }: { title: string; hint?: string; children: ReactNode }) {
+function Section({
+  title,
+  hint,
+  status,
+  children,
+}: {
+  title: string;
+  hint?: string;
+  /** How the last change made here went. */
+  status?: ApplyStatus;
+  children: ReactNode;
+}) {
+  const t = useT();
   return (
     <section>
-      <h3 className="mb-2 text-xs font-semibold tracking-wide text-dim uppercase">{title}</h3>
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <h3 className="text-xs font-semibold tracking-wide text-dim uppercase">{title}</h3>
+        {status?.state === "applying" && <span className="text-xs text-dim">{t("settings.applying")}</span>}
+        {status?.state === "saved" && (
+          <span className="flex items-center gap-1 text-xs text-ready">
+            <Check className="size-3.5" />
+            {t("settings.saved")}
+          </span>
+        )}
+      </div>
       {children}
+      {status?.state === "error" && <p className="mt-2 text-xs text-danger">{status.text}</p>}
       {hint && <p className="mt-2 text-xs text-faint">{hint}</p>}
     </section>
   );

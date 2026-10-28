@@ -93,8 +93,8 @@ export function useSnapshot(): Snapshot | null {
   return snapshot;
 }
 
-/** Saves the settings; the receiver restarts if name, resolution or codec
-    changed. Rejects with a message. */
+/** Saves the settings; the receiver restarts if name, resolution, codec or
+    security changed. Rejects with a message. */
 export async function saveSettings(settings: Settings): Promise<void> {
   if (!isTauri()) {
     await new Promise((resolve) => setTimeout(resolve, 600));

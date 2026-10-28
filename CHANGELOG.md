@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.1
+
+- Receiver settings (name, video quality, codec, security) now apply as soon
+  as they are chosen: there is no Save button to miss at the bottom of the
+  page any more ([#2](https://github.com/kannarozzi/Riflesso-X/issues/2)).
+  The name and the password apply when you leave the field or press Enter.
+- If devices are connected, Riflesso X asks before applying a change, since
+  restarting the receiver disconnects them.
+- Fixed: two changes in quick succession could leave two receivers running.
+
 ## 1.0.0
 
 First public release.
