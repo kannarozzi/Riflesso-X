@@ -528,6 +528,11 @@ fn fitted_size(work: &WorkArea, (frame_w, frame_h): (f64, f64), (w, h): (u32, u3
     let max_w = work.width as f64 * 0.9 - frame_w;
     let max_h = work.height as f64 - frame_h;
     let scale = (max_w / w as f64).min(max_h / h as f64);
+    // GNOME maximizes a new window that covers more than 80% of the work
+    // area (mutter's "auto-maximize"), and a maximized window no longer
+    // follows the picture's rotations: stay well below, title bar included.
+    #[cfg(target_os = "linux")]
+    let scale = scale.min((work.width as f64 * work.height as f64 * 0.75 / (w as f64 * h as f64)).sqrt());
     PhysicalSize::new((w as f64 * scale) as u32, (h as f64 * scale) as u32)
 }
 
