@@ -9,6 +9,8 @@
 # the installer is built around the signed app and signed in turn.
 
 name: Release
+# Otherwise a tag's run is titled after its commit, and a manual run "Release".
+run-name: ${{ github.ref_type == 'tag' && format('Release {0}', github.ref_name) || format('Test build ({0})', github.ref_name) }}
 
 on:
   push:
@@ -158,4 +160,9 @@ jobs:
       - name: Attach them to a draft release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${{ github.ref_name }}" release/* --draft --title "Riflesso X ${{ github.ref_name }}" --notes-file CHANGELOG.md
+        # Titled "Riflesso X 1.2.0", with this version's section of the changelog
+        # as a starting point for the notes.
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v head="## $version" '$0 == head { p = 1; next } /^## / { p = 0 } p' CHANGELOG.md > notes.md
+          gh release create "$GITHUB_REF_NAME" release/* --draft --title "Riflesso X $version" --notes-file notes.md
