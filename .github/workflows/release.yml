@@ -107,8 +107,11 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Install the system libraries
+        # The runner's libunwind-14-dev (from LLVM) conflicts with libunwind-dev,
+        # which GStreamer's headers need.
         run: |
           sudo apt-get update
+          sudo apt-get remove -y libunwind-14-dev || true
           sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev \
             libxdo-dev libssl-dev libasound2-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 
