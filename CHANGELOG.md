@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.0
+
+- **Linux.** Riflesso X now runs on Linux too, as a .deb package (Ubuntu,
+  Debian, Mint, Pop!_OS) and an .rpm package (Fedora), plus the `riflesso`
+  command line, installable with one line (`install.sh`). Video is decoded by
+  GStreamer, in hardware where the GPU allows (NVIDIA NVDEC, VA-API on Intel
+  and AMD), and drawn with OpenGL; Wayland and X11 are both supported.
+- On Linux, settings and the receiver identity are kept in
+  `~/.local/share/riflesso-x`.
+
 ## 1.0.1
 
 - Receiver settings (name, video quality, codec, security) now apply as soon

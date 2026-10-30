@@ -1,0 +1,10 @@
+[Desktop Entry]
+# Hidden twin of "Riflesso X.desktop" (written by Tauri, named after the
+# product): Wayland desktops match windows to the .desktop file named like
+# their app id, riflesso-x, to show the icon. Not listed in menus.
+Type=Application
+Name=Riflesso X
+Icon=riflesso-x
+Exec=riflesso-x
+StartupWMClass=riflesso-x
+NoDisplay=true

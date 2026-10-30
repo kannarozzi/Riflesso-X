@@ -1,0 +1,53 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "bundle": {
+    "active": true,
+    "targets": [
+      "deb",
+      "rpm"
+    ],
+    "category": "Video",
+    "icon": [
+      "icons/32x32.png",
+      "icons/64x64.png",
+      "icons/128x128.png",
+      "icons/256x256.png",
+      "icons/icon.png"
+    ],
+    "linux": {
+      "deb": {
+        "section": "video",
+        "depends": [
+          "libgstreamer1.0-0",
+          "libgstreamer-plugins-base1.0-0",
+          "gstreamer1.0-plugins-base",
+          "gstreamer1.0-plugins-bad",
+          "libegl1",
+          "libasound2"
+        ],
+        "recommends": [
+          "gstreamer1.0-libav"
+        ],
+        "files": {
+          "/usr/share/applications/riflesso-x.desktop": "linux/riflesso-x.desktop"
+        }
+      },
+      "rpm": {
+        "depends": [
+          "gstreamer1",
+          "gstreamer1-plugins-base",
+          "gstreamer1-plugins-bad-free",
+          "libglvnd-egl",
+          "alsa-lib"
+        ],
+        "recommends": [
+          "gstreamer1-plugin-openh264",
+          "gstreamer1-plugin-libav"
+        ],
+        "files": {
+          "/usr/share/applications/riflesso-x.desktop": "linux/riflesso-x.desktop"
+        }
+      }
+    }
+  }
+}

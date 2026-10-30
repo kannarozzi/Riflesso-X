@@ -45,7 +45,7 @@ All commands run from the repository root.
 | `npm install` | Installs the interface dependencies (first time). |
 | `npm run tauri dev` | Runs the whole app with hot reload of the interface. |
 | `npm run dev` | Only the interface, in a browser, with sample data (`ui/src/backend.ts`). |
-| `npm run release` | Builds the installer, the portable and command-line zips and their checksums into `release/`. |
+| `npm run release` | Builds the release files and their checksums into `release/`: on Windows the installer and the portable and command-line zips, on Linux the .deb, the .rpm and the command line (.tar.gz). |
 | `cargo run -p riflesso-cli -- --help` | Runs the command-line receiver (`riflesso.exe`). |
 | `cargo test --workspace` | Runs the tests (one, marked `#[ignore]`, needs a GPU). |
 | `cargo clippy --release --all-targets` | Lints; it must stay free of warnings. |

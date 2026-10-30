@@ -5,20 +5,21 @@
 <h1 align="center">Riflesso X</h1>
 
 <p align="center">
-  <b>Duplica lo schermo di iPhone, iPad o Mac su un PC Windows con AirPlay.</b><br>
+  <b>Duplica lo schermo di iPhone, iPad o Mac su un PC Windows o Linux con AirPlay.</b><br>
   Libero e open source. Nitido fino al 4K, connessione immediata, leggero per il PC.
 </p>
 
 <p align="center">
   <a href="https://github.com/kannarozzi/Riflesso-X/releases/latest"><img alt="Ultima versione" src="https://img.shields.io/github/v/release/kannarozzi/Riflesso-X?style=flat-square&color=8b7cf6"></a>
   <img alt="Windows 10 e 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-0e1218?style=flat-square">
+  <img alt="Linux: Ubuntu, Debian, Fedora" src="https://img.shields.io/badge/Linux-Ubuntu%20%7C%20Debian%20%7C%20Fedora-0e1218?style=flat-square">
   <a href="../LICENSE.md"><img alt="Licenza: GPL-3.0" src="https://img.shields.io/badge/licenza-GPL--3.0-5ad1e6?style=flat-square"></a>
   <img alt="Fatto con Rust e Tauri" src="https://img.shields.io/badge/fatto%20con-Rust%20%2B%20Tauri-f08bb8?style=flat-square">
   <a href="https://github.com/kannarozzi/Riflesso-X/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/kannarozzi/Riflesso-X?style=flat-square&color=f3c76a&logo=github"></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/kannarozzi/Riflesso-X/releases/latest"><b>Scarica per Windows</b></a>
+  <a href="#download"><b>Scarica per Windows e Linux</b></a>
   &nbsp;·&nbsp;
   <a href="#come-si-usa">Come si usa</a>
   &nbsp;·&nbsp;
@@ -34,7 +35,7 @@
 ## Perché Riflesso X
 
 - **Immagine nitida.** Fino al 4K con H.265, decodifica hardware e ridimensionamento
-  sulla GPU, con NVIDIA RTX Video Super Resolution dove disponibile. I colori sono
+  sulla GPU, con NVIDIA RTX Video Super Resolution su Windows dove disponibile. I colori sono
   quelli che invia l'iPhone (full range BT.709).
 - **Connessione immediata.** Tocchi *Duplica schermo*, scegli il PC e l'immagine
   compare in una frazione di secondo.
@@ -42,30 +43,46 @@
   scheda audio.
 - **Decidi tu chi entra.** Chiunque sulla tua rete, oppure con una password o un
   codice mostrato sul PC.
-- **Leggero.** Un installer da 4,5 MB. Chiudendo la finestra l'interfaccia viene
+- **Leggero.** Un installer da 4,5 MB su Windows, un pacchetto da 7 MB su Linux. Chiudendo la finestra l'interfaccia viene
   liberata del tutto, e se vuoi resta solo il ricevitore nell'area di notifica.
-- **Ordinato.** Tutto sta in un'unica cartella: impostazioni, log e persino i file
-  della web view. Disinstallando, o cancellando la cartella, non resta nulla.
+- **Ordinato.** Su Windows tutto sta in un'unica cartella: impostazioni, log e persino
+  i file della web view. Disinstallando, o cancellando la cartella, non resta nulla.
 - **Privato.** Niente account, telemetria o cloud. Lo stream va dal dispositivo al
   PC sulla tua rete locale e da nessun'altra parte. L'unica cosa che l'app chiede a
   internet è se c'è una versione nuova, e puoi disattivarlo.
-- **Di casa su Windows.** Segue il tema chiaro o scuro, parla 10 lingue, e la
-  finestra del mirroring occupa lo schermo senza finire sotto la barra delle applicazioni.
+- **Di casa sul tuo desktop.** Segue il tema chiaro o scuro, parla 10 lingue, e la
+  finestra del mirroring occupa lo schermo senza finire sotto la barra delle
+  applicazioni. Su Linux funziona con Wayland e X11.
 
 ## Download
 
+Tutti i file sono nella [pagina delle release](https://github.com/kannarozzi/Riflesso-X/releases/latest),
+con un file `SHA256SUMS.txt` per verificare i download.
+
+### Windows
+
 | | |
 |---|---|
-| **Installer** · `Riflesso-X_1.0.1_x64-setup.exe` | Si installa solo per il tuo utente, in un'unica cartella a tua scelta, senza diritti di amministratore. |
-| **Portable** · `Riflesso-X_1.0.1_x64-portable.zip` | Estrai dove vuoi e avvia `Riflesso X.exe`. Per toglierlo, cancella la cartella. |
-| **Riga di comando** · `Riflesso-X_1.0.1_x64-cli.zip` | Solo il comando `riflesso`, senza l'app. Si installa con una riga: vedi [Riga di comando](#riga-di-comando). |
-
-Sono nella [pagina delle release](https://github.com/kannarozzi/Riflesso-X/releases/latest),
-con un file `SHA256SUMS.txt` per verificare i download.
+| **Installer** · `Riflesso-X_1.1.0_x64-setup.exe` | Si installa solo per il tuo utente, in un'unica cartella a tua scelta, senza diritti di amministratore. |
+| **Portable** · `Riflesso-X_1.1.0_x64-portable.zip` | Estrai dove vuoi e avvia `Riflesso X.exe`. Per toglierlo, cancella la cartella. |
+| **Riga di comando** · `Riflesso-X_1.1.0_x64-cli.zip` | Solo il comando `riflesso`, senza l'app. Si installa con una riga: vedi [Riga di comando](#riga-di-comando). |
 
 **Requisiti:** Windows 10 o 11 a 64 bit, con Microsoft Edge WebView2 Runtime (già
 incluso in Windows 11). Oltre 1080p serve l'estensione gratuita
 [Estensioni video HEVC](https://apps.microsoft.com/detail/9n4wgh0z6vhq) dal Microsoft Store.
+
+### Linux
+
+| | |
+|---|---|
+| **Ubuntu, Debian, Mint, Pop!_OS** · `Riflesso-X_1.1.0_amd64.deb` | Aprilo con il gestore del software, oppure `sudo apt install ./Riflesso-X_1.1.0_amd64.deb`. |
+| **Fedora** · `Riflesso-X_1.1.0_x86_64.rpm` | Aprilo con il gestore del software, oppure `sudo dnf install ./Riflesso-X_1.1.0_x86_64.rpm`. |
+| **Riga di comando** · `Riflesso-X_1.1.0_linux-x64-cli.tar.gz` | Solo il comando `riflesso`, per qualsiasi distribuzione. Si installa con una riga: vedi [Riga di comando](#riga-di-comando). |
+
+**Requisiti:** un PC a 64 bit con Ubuntu 22.04, Debian 12, Fedora 36 o successivi (o
+un'altra distribuzione altrettanto recente). I pacchetti installano da soli ciò che
+serve, GStreamer compreso. Il video è decodificato in hardware sulle schede NVIDIA
+(NVDEC) e, con il driver VA-API, su Intel e AMD; altrimenti via software.
 
 > [!NOTE]
 > Riflesso X usa la firma del codice gratuita offerta da [SignPath.io](https://about.signpath.io),
@@ -77,8 +94,9 @@ incluso in Windows 11). Oltre 1080p serve l'estensione gratuita
 
 ## Come si usa
 
-1. Avvia Riflesso X. La prima volta Windows Firewall chiede il permesso: consentilo
-   sulle **reti private**.
+1. Avvia Riflesso X. Su Windows, la prima volta, Windows Firewall chiede il permesso:
+   consentilo sulle **reti private**. Su Linux, con Ubuntu e Fedora Workstation, non
+   serve consentire nulla.
 2. Collega iPhone, iPad o Mac alla **stessa rete Wi-Fi** del PC.
 3. Apri **Centro di Controllo → Duplica schermo** e scegli **Riflesso X**.
 
@@ -108,15 +126,23 @@ accoppiati* fa sì che ogni dispositivo debba inserire un nuovo codice.
 ## Riga di comando
 
 Preferisci il terminale? Il comando `riflesso` è lo stesso ricevitore con la stessa
-finestra del mirroring, senza l'app: niente installer, niente interfaccia. Si installa
-da PowerShell:
+finestra del mirroring, senza l'app: niente installer, niente interfaccia. Su Windows
+si installa da PowerShell:
 
 ```powershell
 irm https://raw.githubusercontent.com/kannarozzi/Riflesso-X/main/scripts/install.ps1 | iex
 ```
 
 Scarica l'ultima release, ne verifica lo SHA-256, la installa in
-`%LOCALAPPDATA%\Riflesso X CLI` e la aggiunge al PATH. Poi, in qualsiasi terminale:
+`%LOCALAPPDATA%\Riflesso X CLI` e la aggiunge al PATH. Su Linux, da un terminale:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/kannarozzi/Riflesso-X/main/scripts/install.sh | sh
+```
+
+Scarica l'ultima release, ne verifica lo SHA-256 e la installa in `~/.local/bin`, senza
+diritti di amministratore; se manca GStreamer, ti indica il comando che lo installa
+sulla tua distribuzione. Poi, in qualsiasi terminale:
 
 ```sh
 riflesso                              # riceve come "Riflesso X"
@@ -128,10 +154,16 @@ riflesso --help                       # tutte le opzioni
 ```
 
 Connessioni e codici compaiono nel terminale; <kbd>Ctrl</kbd>+<kbd>C</kbd> per uscire.
-Per aggiornare basta rilanciare la stessa riga. Per toglierlo:
+Per aggiornare basta rilanciare la stessa riga. Per toglierlo, su Windows:
 
 ```powershell
 irm https://raw.githubusercontent.com/kannarozzi/Riflesso-X/main/scripts/uninstall.ps1 | iex
+```
+
+Su Linux:
+
+```sh
+rm ~/.local/bin/riflesso; rm -r ~/.local/share/riflesso-x-cli
 ```
 
 ## Problemi comuni
@@ -142,6 +174,9 @@ irm https://raw.githubusercontent.com/kannarozzi/Riflesso-X/main/scripts/uninsta
 - Controlla che dispositivo e PC siano sulla stessa rete, e che in Windows la rete
   sia impostata come *Privata*.
 - Consenti Riflesso X in Windows Firewall (*Consenti app attraverso Windows Firewall*).
+- Su Linux, con un firewall più restrittivo di quello predefinito, consenti la porta
+  TCP 7000, la porta UDP 5353 (ricerca dei dispositivi) e le porte TCP e UDP alte,
+  che trasportano immagine e audio.
 - VPN e reti Wi-Fi ospiti spesso bloccano la ricerca dei dispositivi.
 - Un altro ricevitore AirPlay potrebbe usare la porta 7000: Riflesso X te lo segnala.
   Chiudi l'altro ricevitore e premi *Riprova*.
@@ -150,24 +185,26 @@ irm https://raw.githubusercontent.com/kannarozzi/Riflesso-X/main/scripts/uninsta
 <details>
 <summary><b>L'immagine non supera i 1080p</b></summary>
 
-L'iPhone invia più di 1080 righe solo con H.265. Installa le
-[Estensioni video HEVC](https://apps.microsoft.com/detail/9n4wgh0z6vhq) e verifica che
-*Usa H.265* sia attivo nelle *Impostazioni*.
+L'iPhone invia più di 1080 righe solo con H.265. Su Windows installa le
+[Estensioni video HEVC](https://apps.microsoft.com/detail/9n4wgh0z6vhq). Su Linux serve
+un decoder H.265: le schede NVIDIA ce l'hanno, Intel e AMD hanno bisogno del driver
+VA-API (`intel-media-driver` o quello di Mesa), altrimenti installa `gst-libav`. Poi
+verifica che *Usa H.265* sia attivo nelle *Impostazioni*.
 </details>
 
 <details>
 <summary><b>Dove sono salvate le impostazioni?</b></summary>
 
-Nella cartella `data` accanto a `Riflesso X.exe` (con l'installer,
-`%LOCALAPPDATA%\Riflesso X\data`). Cancellarla riporta l'app allo stato iniziale.
+Su Windows nella cartella `data` accanto a `Riflesso X.exe` (con l'installer,
+`%LOCALAPPDATA%\Riflesso X\data`); su Linux in `~/.local/share/riflesso-x`. Cancellarla riporta l'app allo stato iniziale.
 </details>
 
 ## Prossimi passi
 
-- **Versione per Linux**: in programma. Oggi la parte video è specifica di Windows.
+- Linux su Flathub, per le distribuzioni che .deb e .rpm non coprono.
 - Registrazione in MP4.
 - Più dispositivi contemporaneamente.
-- Avvio con Windows.
+- Avvio con il sistema.
 - AirPlay solo audio (musica) e Google Cast.
 
 Idee e preferenze sono benvenute nelle [issue](https://github.com/kannarozzi/Riflesso-X/issues).
@@ -177,10 +214,11 @@ Idee e preferenze sono benvenute nelle [issue](https://github.com/kannarozzi/Rif
 ```sh
 npm install
 npm run tauri dev     # avvio con ricaricamento a caldo
-npm run release       # installer, zip portable e checksum in release/
+npm run release       # Windows: installer e zip; Linux: .deb, .rpm e riga di comando
 ```
 
-Servono Rust (toolchain MSVC), i Visual Studio C++ Build Tools e Node.js. I dettagli
+Servono Rust, Node.js e un compilatore C: su Windows la toolchain MSVC con i Visual
+Studio C++ Build Tools, su Linux i pacchetti di sviluppo di GStreamer e WebKitGTK. I dettagli
 sono in [docs/DEVELOPMENT.md](DEVELOPMENT.md), il funzionamento di AirPlay in
 [docs/PROTOCOL.md](PROTOCOL.md) (in inglese).
 
@@ -190,7 +228,7 @@ Riflesso X è gratuito, open source e lo sviluppo nel mio tempo libero. Se ti è
 due cose aiutano molto:
 
 - **Una stella su GitHub**: ti costa un clic e aiuta altre persone a trovare il progetto.
-- **Un caffè su Ko-fi**: sostiene il lavoro, dalle nuove funzioni alla versione per Linux.
+- **Un caffè su Ko-fi**: sostiene il lavoro, dalle nuove funzioni a Flathub.
 
 <p align="center">
   <a href="https://github.com/kannarozzi/Riflesso-X/stargazers"><img alt="Metti una stella a Riflesso X su GitHub" src="https://img.shields.io/github/stars/kannarozzi/Riflesso-X?style=for-the-badge&logo=github&label=Star&color=8b7cf6"></a>

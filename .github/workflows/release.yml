@@ -1,5 +1,7 @@
 # Builds the release files on every version tag (v1.0.0, ...) and attaches them
-# to a draft GitHub release, to be checked and published by hand.
+# to a draft GitHub release, to be checked and published by hand. Windows and
+# Linux build side by side; a last job puts their files in one release with
+# one SHA256SUMS.txt.
 #
 # Signing (SignPath Foundation, see CODE_SIGNING_POLICY.md) runs when the
 # repository has the secret SIGNPATH_API_TOKEN and the variable
@@ -18,7 +20,7 @@ permissions:
   actions: read
 
 jobs:
-  release:
+  windows:
     runs-on: windows-latest
     env:
       SIGNING: ${{ secrets.SIGNPATH_API_TOKEN != '' && vars.SIGNPATH_ORGANIZATION_ID != '' }}
@@ -94,11 +96,63 @@ jobs:
       - name: Keep the files with the run
         uses: actions/upload-artifact@v7
         with:
-          name: release
+          name: windows
           path: release/
 
+  # The oldest supported Ubuntu, so that the packages run on distributions with
+  # an older glibc too (Ubuntu 22.04+, Debian 12+, Fedora 36+).
+  linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install the system libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev \
+            libxdo-dev libssl-dev libasound2-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - run: npm ci
+
+      - name: Build the packages and the command line
+        run: node scripts/release.mjs
+
+      - name: Keep the files with the run
+        uses: actions/upload-artifact@v7
+        with:
+          name: linux
+          path: release/
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [windows, linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: "{windows,linux}"
+          merge-multiple: true
+          path: release
+
+      - name: One checksum file for all
+        working-directory: release
+        run: |
+          rm -f SHA256SUMS.txt
+          sha256sum -- * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
       - name: Attach them to a draft release
-        if: startsWith(github.ref, 'refs/tags/')
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release create "${{ github.ref_name }}" release/* --draft --title "Riflesso X ${{ github.ref_name }}" --notes-file CHANGELOG.md

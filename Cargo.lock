@@ -3827,7 +3827,7 @@ checksum = "b4596b6d070b27117e987119b4dac604f3c58cfb0b191112e24771b2faeac1a6"
 
 [[package]]
 name = "playfair"
-version = "1.0.1"
+version = "1.1.0"
 dependencies = [
  "cc",
 ]
@@ -4172,7 +4172,7 @@ dependencies = [
 
 [[package]]
 name = "riflesso-airplay"
-version = "1.0.1"
+version = "1.1.0"
 dependencies = [
  "aes",
  "anyhow",
@@ -4195,7 +4195,7 @@ dependencies = [
 
 [[package]]
 name = "riflesso-audio"
-version = "1.0.1"
+version = "1.1.0"
 dependencies = [
  "cpal",
  "riflesso-airplay",
@@ -4204,7 +4204,7 @@ dependencies = [
 
 [[package]]
 name = "riflesso-cli"
-version = "1.0.1"
+version = "1.1.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -4221,7 +4221,7 @@ dependencies = [
 
 [[package]]
 name = "riflesso-setup"
-version = "1.0.1"
+version = "1.1.0"
 dependencies = [
  "embed-resource",
  "windows",
@@ -4230,7 +4230,7 @@ dependencies = [
 
 [[package]]
 name = "riflesso-updates"
-version = "1.0.1"
+version = "1.1.0"
 dependencies = [
  "anyhow",
  "hex",
@@ -4242,7 +4242,7 @@ dependencies = [
 
 [[package]]
 name = "riflesso-video"
-version = "1.0.1"
+version = "1.1.0"
 dependencies = [
  "anyhow",
  "glow",
@@ -4257,7 +4257,7 @@ dependencies = [
 
 [[package]]
 name = "riflesso-window"
-version = "1.0.1"
+version = "1.1.0"
 dependencies = [
  "anyhow",
  "png",
@@ -4270,7 +4270,7 @@ dependencies = [
 
 [[package]]
 name = "riflesso-x"
-version = "1.0.1"
+version = "1.1.0"
 dependencies = [
  "anyhow",
  "gtk",
