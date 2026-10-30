@@ -2,12 +2,39 @@
 
 ## Requirements
 
+On every system: [Rust](https://rustup.rs) stable and [Node.js](https://nodejs.org) 22 or
+later. `crates/playfair` compiles C code, so a C compiler is needed too.
+
+### Windows
+
 - Windows 10 or 11, 64-bit.
-- [Rust](https://rustup.rs) stable with the **MSVC** toolchain and the
+- Rust with the **MSVC** toolchain and the
   [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
-  (C++ workload): `crates/playfair` compiles C code.
-- [Node.js](https://nodejs.org) 22 or later.
+  (C++ workload).
 - Optional: the *HEVC Video Extensions* from the Microsoft Store, to test H.265.
+
+### Linux
+
+Video goes through GStreamer, which picks the hardware decoder the system has (NVDEC on
+NVIDIA, VA-API on Intel and AMD) and falls back to software. On Fedora:
+
+```sh
+sudo dnf group install c-development
+sudo dnf install webkit2gtk4.1-devel openssl-devel libappindicator-gtk3-devel \
+  librsvg2-devel libxdo-devel alsa-lib-devel \
+  gstreamer1-devel gstreamer1-plugins-base-devel gstreamer1-plugins-bad-free
+```
+
+On Debian and Ubuntu:
+
+```sh
+sudo apt install build-essential libwebkit2gtk-4.1-dev libssl-dev \
+  libayatana-appindicator3-dev librsvg2-dev libxdo-dev libasound2-dev \
+  libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-bad gstreamer1.0-libav
+```
+
+Software decoding needs `gst-libav` (H.264 and H.265) or OpenH264. The log says which
+decoder runs.
 
 ## Commands
 
@@ -27,7 +54,10 @@ All commands run from the repository root.
 (`scripts/stop-leftovers.mjs`), which would otherwise keep ports 5173 and 7000 busy.
 
 Windows Firewall asks for permission the first time the receiver starts: allow it on
-private networks. Only one AirPlay receiver can use port 7000 at a time.
+private networks. On Linux, the receiver needs TCP 7000 and 7100, UDP for the streams
+and UDP 5353 (mDNS); Fedora Workstation's default firewall zone already allows them,
+and the announcement works alongside Avahi. Only one AirPlay receiver can use port 7000
+at a time.
 
 ## Layout
 
@@ -35,11 +65,12 @@ private networks. Only one AirPlay receiver can use port 7000 at a time.
 apps/
   desktop/           the app (Tauri 2): tray, settings, receiver lifecycle; tauri.conf.json, icons
     src/setup/       setup mode: the app installs, updates and uninstalls itself (setup.html)
-  cli/               command-line receiver (riflesso.exe)
-  installer/         the downloadable installer: the app, compressed, started in setup mode
+  cli/               command-line receiver (riflesso.exe, riflesso on Linux)
+  installer/         the downloadable Windows installer: the app, compressed, started in setup mode
 crates/
   airplay/           AirPlay protocol: discovery, handshake, streams, access control
-  video/             Media Foundation decoding and Direct3D 11 presentation
+  video/             decoding and drawing: Media Foundation and Direct3D 11 (win/),
+                     GStreamer and OpenGL ES (linux/)
   audio/             playback with resampling (cpal)
   window/            the mirroring window, shared by the app and the command line
   updates/           new-version check and installer download (GitHub releases)
@@ -53,13 +84,16 @@ scripts/             release build, dev helper, command-line install and uninsta
 docs/                protocol and development notes, Italian README, README images
 ```
 
-The mirroring window is a native window (winit) drawn with Direct3D 11 on its own
-thread; the interface is a web view that is destroyed when the main window closes, so
+The mirroring window is a native window (winit) drawn with Direct3D 11 or OpenGL on its
+own thread (on Linux it is created for the first picture and destroyed when mirroring
+stops, since Wayland cannot hide windows); the interface is a web view that is destroyed when the main window closes, so
 only the receiver stays in memory while running in the notification area.
 
 Settings, the receiver identity, the list of devices that entered the on-screen code
 and the log (`riflesso-x.log`, release builds only) live in a `data` folder next to the
-executable. The web view's profile is kept there too.
+executable. The web view's profile is kept there too. On Linux, release builds use
+`~/.local/share/riflesso-x` instead (`riflesso-x-cli` for the command line), since the
+executable sits in a read-only place; debug builds keep `target/debug/data`.
 
 The app icon's source is `apps/desktop/icons/app-icon.svg`; after changing it, run
 `npm run tauri icon apps/desktop/icons/app-icon.svg` and delete the `android` and `ios`

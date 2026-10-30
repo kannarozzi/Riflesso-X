@@ -2,8 +2,9 @@
 //! with the running version. Also downloads that release's installer and
 //! checks it against the published SHA-256.
 //!
-//! Downloads go through Windows' own `URLDownloadToFile`, so no HTTP library
-//! is added to the programs. This is the only time Riflesso X contacts the
+//! Downloads go through the system's own downloader (`URLDownloadToFile` on
+//! Windows, `curl` or `wget` on Linux), so no HTTP library is added to the
+//! programs. This is the only time Riflesso X contacts the
 //! internet by itself, and users can turn it off.
 
 use std::path::{Path, PathBuf};
@@ -110,6 +111,7 @@ impl Release {
 }
 
 /// Saves `url` to `file` with Windows' downloader (follows GitHub's redirects).
+#[cfg(windows)]
 fn download(url: &str, file: &Path) -> Result<()> {
     use windows::Win32::System::Com::Urlmon::URLDownloadToFileW;
     use windows::Win32::System::Com::{COINIT_MULTITHREADED, CoInitializeEx};
@@ -122,6 +124,29 @@ fn download(url: &str, file: &Path) -> Result<()> {
         URLDownloadToFileW(None, &HSTRING::from(url), &HSTRING::from(file.as_os_str()), 0, None)
     }
     .with_context(|| format!("downloading {url}"))
+}
+
+/// Saves `url` to `file` with `curl`, or `wget` where curl is missing (some
+/// desktop distributions ship only one of the two). Both follow redirects.
+#[cfg(not(windows))]
+fn download(url: &str, file: &Path) -> Result<()> {
+    use std::process::{Command, Stdio};
+
+    let user_agent = concat!("Riflesso-X/", env!("CARGO_PKG_VERSION"));
+    let attempts = [
+        ("curl", vec!["-fsSL", "--max-time", "120", "-A", user_agent, "-o"]),
+        ("wget", vec!["-q", "--timeout=120", "-U", user_agent, "-O"]),
+    ];
+    for (program, args) in attempts {
+        let status = Command::new(program).args(args).arg(file).arg(url).stdin(Stdio::null()).status();
+        match status {
+            Ok(status) if status.success() => return Ok(()),
+            Ok(status) => bail!("downloading {url}: {program} failed ({status})"),
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => continue,
+            Err(e) => bail!("downloading {url}: cannot run {program}: {e}"),
+        }
+    }
+    bail!("downloading {url}: neither curl nor wget is installed")
 }
 
 #[cfg(test)]

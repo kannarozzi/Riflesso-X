@@ -17,8 +17,13 @@ pub fn spawn(path: PathBuf, mirror: MirrorProxy) {
                 return;
             }
         };
-        // H.265 streams start with a VPS (NAL type 32); H.264 ones with an SPS.
-        let codec = if data.get(4).is_some_and(|b| (b >> 1) & 0x3F == 32) { Codec::Hevc } else { Codec::H264 };
+        // The first parameter set tells: a VPS (NAL type 32) for H.265, an SPS
+        // (type 7) for H.264. Delimiters may come before it.
+        let first = data
+            .windows(5)
+            .find(|w| w[..4] == [0, 0, 0, 1] && (w[4] & 0x1F == 7 || (w[4] >> 1) & 0x3F == 32))
+            .map(|w| w[4]);
+        let codec = if first.is_some_and(|b| (b >> 1) & 0x3F == 32) { Codec::Hevc } else { Codec::H264 };
         let units = split_access_units(&data, codec);
         tracing::info!("playing {} ({codec:?}, {} frames)", path.display(), units.len());
         for unit in units {

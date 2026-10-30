@@ -1,6 +1,6 @@
 [package]
 name = "riflesso-video"
-description = "Hardware H.264 decoding (Media Foundation) and presentation (Direct3D 11) for Riflesso X"
+description = "Hardware H.264/H.265 decoding and presentation for Riflesso X: Media Foundation and Direct3D 11 on Windows, GStreamer and OpenGL on Linux"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -22,3 +22,11 @@ features = [
     "Win32_Media_MediaFoundation",
     "Win32_System_Com",
 ]
+
+[target.'cfg(target_os = "linux")'.dependencies]
+gstreamer = "0.25"
+gstreamer-app = "0.25"
+gstreamer-video = "0.25"
+glutin = { version = "0.32", default-features = false, features = ["egl", "glx", "x11", "wayland"] }
+glow = "0.18"
+raw-window-handle = "0.6"

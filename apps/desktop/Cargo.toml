@@ -1,6 +1,6 @@
 [package]
 name = "riflesso-x"
-description = "Riflesso X: AirPlay screen-mirroring receiver for Windows"
+description = "Riflesso X: AirPlay screen-mirroring receiver for Windows and Linux"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -20,10 +20,17 @@ tracing-subscriber.workspace = true
 tauri = { version = "2", features = ["tray-icon"] }
 tauri-plugin-single-instance = "2"
 tauri-plugin-opener = "2"
-tauri-plugin-dialog = "2"
 tokio.workspace = true
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+# Activation tokens, so the mirroring window may come to the front on
+# Wayland; already part of Tauri on Linux.
+gtk = "0.18"
+
+[target.'cfg(windows)'.dependencies]
+tauri-plugin-dialog = "2"
 # Setup mode (src/setup): registry, shortcuts, closing a running copy.
 winreg = "0.56"
 windows = { version = "0.62", features = [

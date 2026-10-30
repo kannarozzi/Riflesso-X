@@ -6,6 +6,10 @@ use std::path::{Path, PathBuf};
 use std::{env, fs};
 
 fn main() {
+    // Only the Windows installer carries the app.
+    if env::var_os("CARGO_CFG_WINDOWS").is_none() {
+        return;
+    }
     let here = Path::new(env!("CARGO_MANIFEST_DIR"));
     let out = PathBuf::from(env::var("OUT_DIR").unwrap());
 

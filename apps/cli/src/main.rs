@@ -17,7 +17,7 @@ use tracing_subscriber::EnvFilter;
 
 const MIN_PASSWORD_LEN: usize = 4;
 
-/// AirPlay screen mirroring receiver for Windows (Riflesso X, command line).
+/// AirPlay screen mirroring receiver for Windows and Linux (Riflesso X, command line).
 ///
 /// Shows the screen of an iPhone, iPad or Mac in a window. On the device, open
 /// Control Center, tap Screen Mirroring and choose this receiver's name.
@@ -206,11 +206,27 @@ fn security(args: &Args) -> Result<Security> {
 
 /// "data" next to the executable, like the app; %APPDATA% if that folder
 /// cannot be written.
+#[cfg(windows)]
 fn default_data_dir() -> PathBuf {
     let local = std::env::current_exe().ok().and_then(|exe| Some(exe.parent()?.join("data")));
     match local {
         Some(dir) if is_writable(&dir) => dir,
         _ => std::env::var_os("APPDATA").map_or_else(|| PathBuf::from("data"), |dir| PathBuf::from(dir).join("Riflesso X")),
+    }
+}
+
+/// ~/.local/share/riflesso-x-cli (XDG), apart from the app's folder as on
+/// Windows; debug builds use "data" next to the executable.
+#[cfg(not(windows))]
+fn default_data_dir() -> PathBuf {
+    let local = std::env::current_exe().ok().and_then(|exe| Some(exe.parent()?.join("data")));
+    match local {
+        Some(dir) if cfg!(debug_assertions) && is_writable(&dir) => dir,
+        _ => std::env::var_os("XDG_DATA_HOME")
+            .map(PathBuf::from)
+            .filter(|dir| dir.is_absolute())
+            .or_else(|| std::env::home_dir().map(|home| home.join(".local/share")))
+            .map_or_else(|| PathBuf::from("data"), |dir| dir.join("riflesso-x-cli")),
     }
 }
 

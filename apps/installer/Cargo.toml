@@ -5,7 +5,8 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 
-[dependencies]
+# Windows only: on Linux the app ships as a package (AppImage, .deb, .rpm).
+[target.'cfg(windows)'.dependencies]
 zstd = "0.13"
 windows = { version = "0.62", features = ["Win32_UI_WindowsAndMessaging"] }
 

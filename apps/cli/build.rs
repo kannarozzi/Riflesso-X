@@ -6,6 +6,10 @@ use std::path::{Path, PathBuf};
 use std::{env, fs};
 
 fn main() {
+    // Executable resources are a Windows thing; on Linux the window icon is a PNG.
+    if env::var_os("CARGO_CFG_WINDOWS").is_none() {
+        return;
+    }
     let here = Path::new(env!("CARGO_MANIFEST_DIR"));
     let version = env::var("CARGO_PKG_VERSION").unwrap();
     let numbers: Vec<&str> = version.split(['.', '-']).take(3).collect();

@@ -3,6 +3,8 @@
 
 mod receiver;
 mod settings;
+// Installing and uninstalling is a Windows thing: on Linux the package manager does it.
+#[cfg_attr(not(windows), path = "setup/none.rs")]
 mod setup;
 mod state;
 mod updates;
@@ -63,12 +65,37 @@ fn parse_args() -> Result<Args> {
 /// next to the executable, so everything stays in the app's own folder: the
 /// per-user installation or an unzipped portable copy. Only if that folder
 /// cannot be written (e.g. a copy under Program Files) %APPDATA% is used.
+#[cfg(windows)]
 fn data_dir() -> PathBuf {
     let local = std::env::current_exe().ok().and_then(|exe| Some(exe.parent()?.join("data")));
     match local {
         Some(dir) if is_writable(&dir) => dir,
         _ => std::env::var_os("APPDATA").map_or_else(|| PathBuf::from("data"), |dir| PathBuf::from(dir).join("Riflesso X")),
     }
+}
+
+/// On Linux the executable lives in a read-only place (/usr/bin, inside the
+/// AppImage), so the data go to the XDG data folder, ~/.local/share/riflesso-x.
+/// Debug builds keep the `data` folder next to the executable, as on Windows,
+/// so that development does not touch the installed copy's identity.
+#[cfg(not(windows))]
+fn data_dir() -> PathBuf {
+    let local = std::env::current_exe().ok().and_then(|exe| Some(exe.parent()?.join("data")));
+    match local {
+        Some(dir) if cfg!(debug_assertions) && is_writable(&dir) => dir,
+        _ => xdg_data_home().join("riflesso-x"),
+    }
+}
+
+/// $XDG_DATA_HOME, or ~/.local/share when it is unset (the specification asks
+/// to ignore relative paths).
+#[cfg(not(windows))]
+fn xdg_data_home() -> PathBuf {
+    std::env::var_os("XDG_DATA_HOME")
+        .map(PathBuf::from)
+        .filter(|dir| dir.is_absolute())
+        .or_else(|| std::env::home_dir().map(|home| home.join(".local/share")))
+        .unwrap_or_else(|| PathBuf::from("data"))
 }
 
 fn is_writable(dir: &std::path::Path) -> bool {
@@ -95,6 +122,7 @@ fn init_logging(data_dir: &std::path::Path) {
 struct Mirror(Mutex<MirrorProxy>);
 
 impl Mirror {
+    #[cfg(not(target_os = "linux"))]
     fn send(&self, event: MirrorEvent) {
         let _ = self.0.lock().unwrap().send_event(event);
     }
@@ -158,9 +186,36 @@ fn open_repository(app: AppHandle) -> Result<(), String> {
     app.opener().open_url(REPOSITORY, None::<&str>).map_err(|e| e.to_string())
 }
 
+/// On Linux the click also earns a token that lets the mirroring window come
+/// to the front, which Wayland allows only with one.
 #[tauri::command]
-fn show_mirror(mirror: State<'_, Mirror>) {
-    mirror.send(MirrorEvent::Show);
+fn show_mirror(app: AppHandle, mirror: State<'_, Mirror>) {
+    #[cfg(target_os = "linux")]
+    {
+        let proxy = mirror.0.lock().unwrap().clone();
+        // GTK answers on its own thread only.
+        let _ = app.run_on_main_thread(move || {
+            let event = activation_token().map_or(MirrorEvent::Show, MirrorEvent::ShowActivated);
+            let _ = proxy.send_event(event);
+        });
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        let _ = app;
+        mirror.send(MirrorEvent::Show);
+    }
+}
+
+/// A token the desktop issues for the user's latest click in our windows
+/// (xdg-activation on Wayland, a startup id on X11).
+#[cfg(target_os = "linux")]
+fn activation_token() -> Option<String> {
+    use gtk::gio::prelude::AppLaunchContextExt;
+    use gtk::{gdk, gio};
+    let context = gdk::Display::default()?.app_launch_context()?;
+    // GTK needs an application to describe, though Wayland's token ignores it.
+    let info = gio::AppInfo::create_from_commandline("riflesso-x", None, gio::AppInfoCreateFlags::NONE).ok()?;
+    context.startup_notify_id(&info, &[]).map(String::from)
 }
 
 /// Shows the main window, creating it again if it was closed: closing it

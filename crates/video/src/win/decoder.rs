@@ -15,7 +15,7 @@ use windows::Win32::System::Com::{CLSCTX_INPROC_SERVER, CoCreateInstance, CoTask
 use windows::core::{GUID, Interface};
 
 use crate::Codec;
-use crate::sps::{self, ColorInfo};
+use super::sps::{self, ColorInfo};
 
 /// A decoded picture on the GPU. Holding it keeps the decoder from reusing
 /// its surface, so only the latest frame is kept.

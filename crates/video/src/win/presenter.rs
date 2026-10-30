@@ -15,8 +15,8 @@ use windows::Win32::Graphics::Dxgi::Common::{
 use windows::Win32::Graphics::Dxgi::*;
 use windows::core::{GUID, Interface};
 
-use crate::decoder::Frame;
-use crate::sps::ColorInfo;
+use super::decoder::Frame;
+use super::sps::ColorInfo;
 
 /// Background around the video and while waiting for a sender.
 const BACKGROUND: [f32; 4] = [0.07, 0.07, 0.08, 1.0];
